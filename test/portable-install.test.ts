@@ -12,8 +12,9 @@ const bridgePath = resolve(import.meta.dir, '../src/supervision-mcp.ts')
 const harnessPath = resolve(import.meta.dir, '../compat/supervision-acceptance.ts')
 const id = 'T-11111111-2222-3333-4444-555555555555'
 
-test('real stdio startup works from a clean HOME with an absolute executable and no tracker or credentials', async () => {
+test.each([false, true])('real stdio startup works without credentials, with absolute journal override: %s', async (override) => {
 	const home = root(), executable = join(home, 'fake amp'), calls = join(home, 'calls.jsonl')
+	const journal = join(home, override ? 'shared journal' : '.local/state/amp-supervision')
 	writeFileSync(executable, `#!${process.execPath}
 import {appendFileSync} from 'node:fs';
 appendFileSync(${JSON.stringify(calls)}, JSON.stringify({args:process.argv.slice(2),cwd:process.cwd()})+'\\n');
@@ -23,6 +24,7 @@ console.log(process.argv[2] === 'threads' ? '[]' : ${JSON.stringify(`https://amp
 	const transport = new StdioClientTransport({ command: process.execPath, args: [bridgePath], env: {
 		HOME: home, PATH: '/usr/bin:/bin', AMP_SUPERVISION_AMP_EXECUTABLE: executable,
 		AMP_SUPERVISION_RUNNER_DIR: home, AMP_SUPERVISION_RUNNER_ID: 'fixture',
+		...(override ? { AMP_SUPERVISION_STATE_DIR: journal } : {}),
 	} })
 	try {
 		await client.connect(transport)
@@ -34,7 +36,6 @@ console.log(process.argv[2] === 'threads' ? '[]' : ${JSON.stringify(`https://amp
 		expect(recorded[0].args).toEqual(['threads', 'list', '--json', '--limit', '100', '--offset', '0'])
 		expect(recorded[1].cwd).toBe(home)
 		expect(recorded[1].args.slice(2)).toEqual(['--executor', 'runner:fixture', '--visibility', 'private'])
-		const journal = join(home, '.local/state/amp-supervision')
 		expect(statSync(journal).mode & 0o777).toBe(0o700)
 		expect(statSync(join(journal, 'requests.sqlite')).mode & 0o777).toBe(0o600)
 	} finally { await client.close() }
@@ -84,5 +85,18 @@ test('relative executable override fails before creating the request journal', a
 	const stderr = await new Response(child.stderr).text()
 	expect(await child.exited).toBe(1)
 	expect(stderr).toContain('must be an absolute path')
+	expect(() => statSync(join(home, '.local/state/amp-supervision'))).toThrow()
+})
+
+test.each(['journal', '.', ''])('relative or empty journal override %j fails before journal creation', async (directory) => {
+	const home = root()
+	const child = Bun.spawn([process.execPath, bridgePath], { cwd: home, env: {
+		HOME: home, PATH: '/usr/bin:/bin', AMP_SUPERVISION_STATE_DIR: directory,
+	}, stdin: 'ignore', stdout: 'pipe', stderr: 'pipe' })
+	const stderr = await new Response(child.stderr).text()
+	expect(await child.exited).toBe(1)
+	expect(stderr).toContain('AMP_SUPERVISION_STATE_DIR must be an absolute path.')
+	expect(() => statSync(join(home, 'journal'))).toThrow()
+	expect(() => statSync(join(home, 'requests.sqlite'))).toThrow()
 	expect(() => statSync(join(home, '.local/state/amp-supervision'))).toThrow()
 })

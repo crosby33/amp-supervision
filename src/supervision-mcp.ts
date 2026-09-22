@@ -286,6 +286,7 @@ if (import.meta.main) {
 	if (executable !== 'amp' && !isAbsolute(executable)) throw new Error('AMP_SUPERVISION_AMP_EXECUTABLE must be an absolute path.')
 	process.umask(0o077)
 	const directory = process.env.AMP_SUPERVISION_STATE_DIR ?? join(homedir(), '.local/state/amp-supervision')
+	if (!isAbsolute(directory)) throw new Error('AMP_SUPERVISION_STATE_DIR must be an absolute path.')
 	mkdirSync(directory, { recursive: true, mode: 0o700 })
 	const path = join(directory, 'requests.sqlite')
 	const db = new Database(path)
