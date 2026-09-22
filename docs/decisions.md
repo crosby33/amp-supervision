@@ -1,0 +1,7 @@
+# Design decisions
+
+- 2026-09-22 | initial repository | name/source | `crosby33/amp-supervision`, clean public history, public repository owns bridge and skill | avoid a stale fork | existing private installation remains unchanged until an approved cutover; inspect the exact candidate before publishing private-derived material.
+- 2026-09-22 | initial repository | license/runtime | MIT; retain Bun, SQLite, MCP SDK and Zod | extract the existing implementation rather than migrate runtimes | no bundled credentials, journals or private history.
+- 2026-09-22 | initial repository | windows-topology | Windows Desktop with bridge, Amp, runner, repositories and journal in one WSL2 distribution | Amp documents Windows through WSL; reuse POSIX behavior | no native Windows support claim; fresh-install evidence remains required.
+- 2026-09-22 | initial repository | supervisor-portability | reusable agent skill and protocol; Claude Desktop as worked example | Amp is the implementation-specific dependency | other clients require their own transport, skill-loading and acceptance evidence; no remote HTTP bridge in this release.
+- 2026-09-22 | initial repository | linux-reference | document Ubuntu; EndeavourOS is an additional candidate configuration | official Desktop Linux beta documents Ubuntu/Debian | Arch success does not establish Ubuntu acceptance; exact Arch package and supervisor surface are not yet identified.

@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.env.*
+.amp/
+.amp-supervision/
+compat/results/
+dist/
+node_modules/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
