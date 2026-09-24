@@ -37,7 +37,7 @@ const isUserPrompt = (message: z.infer<typeof messageSchema>) => message.role ==
 type Request = { key: string; digest: string; pending: number; dispatch_build_id?: string | null; applied_worker_policy_id?: string | null }
 export type RunAmp = (args: string[], cwd?: string) => Promise<string>
 const executorSchema = z.enum(['orb', 'runner'])
-const modeSchema = z.enum(['low', 'medium', 'high', 'ultra'])
+const modeSchema = z.enum(['low', 'medium', 'high', 'ultra', 'grok47', 'claude-fable-5-1'])
 const runnerSchema = z.strictObject({
 	id: z.string().regex(/^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/),
 	directory: z.string().refine(isAbsolute, 'Runner directory must be absolute'),
@@ -262,7 +262,7 @@ export function createSupervisionServer(bridge: SupervisionBridge) {
 	server.registerTool('amp_spawn', {
 		description: `Start a private implementation worker, not another supervisor. Build: ${bridge.build.build_id}; worker policy: ${bridge.build.worker_policy_id}. For orb, supply project namespace/name or no-project; paths stay in the cloud. For runner, omit project. ${bridge.runner ? `Configured runner: ${bridge.runner.id}, directory: ${bridge.runner.directory}. Runs with the runner account permissions, not a filesystem sandbox.` : 'Runner execution is not configured.'} Accepted is not completed. Never retry an ambiguous dispatch.`,
 		inputSchema: { prompt: z.string().min(1).max(100_000), executor: executorSchema, project: text.optional(),
-			mode: modeSchema.optional().describe('Optional built-in agent mode. Omit to preserve the CLI default. requested_mode echoes the request, not observed execution.') },
+			mode: modeSchema.optional().describe('Optional agent mode: built-in low/medium/high/ultra, grok47 for Grok 4.7, or claude-fable-5-1 for Claude Fable 5.1. Omit to preserve the CLI default. requested_mode echoes the request, not observed execution. Other plugin modes are rejected.') },
 	}, ({ prompt, project, executor, mode }) => reply(() => bridge.spawn(prompt, project, executor, mode)))
 	server.registerTool('amp_send', {
 		description: 'Send to an observed idle thread. For a blocked envelope, message must be JSON {decision,rationale,constraints:[]}. No steering, cancellation or automatic unarchive.',

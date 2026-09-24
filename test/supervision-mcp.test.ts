@@ -197,7 +197,7 @@ test('runner dispatch uses only the configured ID and directory, and never falls
 test('spawn forwards each optional mode for both executors and preserves omission', async () => {
 	const root = realpathSync(directory())
 	for (const executor of ['orb', 'runner'] as const) {
-		for (const mode of [undefined, 'low', 'medium', 'high', 'ultra'] as const) {
+		for (const mode of [undefined, 'low', 'medium', 'high', 'ultra', 'grok47', 'claude-fable-5-1'] as const) {
 			const calls: { args: string[]; cwd: string | undefined }[] = []
 			const bridge = new SupervisionBridge(database(), async (args, cwd) => { calls.push({ args, cwd }); return url },
 				{ id: 'mac-dev', directory: root })
@@ -222,7 +222,7 @@ test('invalid modes fail before dispatch or journal reservation for direct and M
 	const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
 	await server.connect(serverTransport); await client.connect(clientTransport)
 	try {
-		for (const mode of ['', 'custom-mode', '--executor runner:other', null]) {
+		for (const mode of ['', 'custom-mode', 'grok46', 'Grok 4.7', 'Claude Fable 5.1', 'CLAUDE-FABLE-5-1', '--executor runner:other', null]) {
 			// @ts-expect-error Exercise untyped direct callers as well as MCP validation.
 			await expect(bridge.spawn('Choose', 'no-project', 'orb', mode)).rejects.toThrow()
 			expect((await client.callTool({ name: 'amp_spawn', arguments: { prompt: 'Choose', executor: 'orb', project: 'no-project', mode } })).isError).toBeTrue()
@@ -230,7 +230,7 @@ test('invalid modes fail before dispatch or journal reservation for direct and M
 		expect(calls).toBe(0)
 		expect(bridge.db.query('SELECT * FROM supervision_requests').all()).toEqual([])
 		const spawn = (await client.listTools()).tools.find(t => t.name === 'amp_spawn')!
-		expect(spawn.inputSchema.properties?.mode).toMatchObject({ enum: ['low', 'medium', 'high', 'ultra'] })
+		expect(spawn.inputSchema.properties?.mode).toMatchObject({ enum: ['low', 'medium', 'high', 'ultra', 'grok47', 'claude-fable-5-1'] })
 		expect(spawn.inputSchema.required).not.toContain('mode')
 	} finally { await client.close(); await server.close() }
 })

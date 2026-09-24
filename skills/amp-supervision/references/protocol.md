@@ -12,7 +12,7 @@ prompt is a filesystem sandbox. Do not expose it to untrusted clients or the net
   from the operator-configured directory. Start the runner in that same directory.
 - Orb spawn: `amp -ox <marked-task> --visibility private`, with `--project` when specified.
   `no-project` omits that flag and runs outside the caller's checkout, from the OS temp directory.
-- Optional `--mode` forwards low/medium/high/ultra. Returned `requested_mode` is not evidence
+- Optional `--mode` forwards low/medium/high/ultra, plus `grok47` and `claude-fable-5-1` when explicitly requested. Returned `requested_mode` is not evidence
   of the observed model or mode. Continuations do not change mode or executor.
 - Send: `amp threads continue <id> -ox <marked-message>` continues the original executor.
 - Read/list: `amp threads export <id>` / `amp threads list --json` with pagination.
