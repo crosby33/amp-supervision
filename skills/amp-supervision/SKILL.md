@@ -53,8 +53,10 @@ Read [protocol and recovery](references/protocol.md) before first dispatch or re
    spawning. Code access is optional for the supervisor, not forbidden.
 2. Choose model and effort separately for supervisor and worker. Honor the human's mode
    choice. Recommend medium for bounded work, high for substantial reasoning, low for
-   mechanical work; ask before ultra or premium features. The bridge accepts only
-   low/medium/high/ultra, not arbitrary model names. Omission uses Amp's current default.
+   mechanical work; ask before ultra or premium features. The bridge accepts
+   low/medium/high/ultra, plus `grok47` and `claude-fable-5-1` only when the human explicitly
+   requests Grok 4.7 or Claude Fable 5.1. Other plugin modes and arbitrary model names are rejected.
+   Omission uses Amp's current default.
    Never promise free inference. See the current links in platform setup.
 3. Compare `build_id` and `worker_policy_id` in the tool description with identities from
    the reviewed installation. Missing/mismatched identities require investigation.
