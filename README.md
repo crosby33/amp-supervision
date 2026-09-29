@@ -21,6 +21,9 @@ ChatGPT web cannot directly launch this local stdio server. No HTTP gateway is i
 
 ## Start with reviewed code
 
+New to the setup? Start with the text-only [getting-started playbook](docs/playbook.md)
+for accounts, macOS/Linux/Windows prerequisites, and the bridge/skill installation sequence.
+
 Requires Bun 1.3.14+, Git and an authenticated Amp CLI. From a reviewed checkout:
 
 ```sh
